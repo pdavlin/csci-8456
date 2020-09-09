@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+
 
 class SearchProblem:
     """
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -81,23 +83,70 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = []
+    stack = util.Stack()
+    stack.push((problem.getStartState(), '', 0))
+    found_goal = False
+    while stack.isEmpty() == False:
+        current = stack.pop()
+        if(problem.isGoalState(current[0])):
+            stack.push(current)
+            break
+        for successor in problem.getSuccessors(current[0]):
+            if successor[0] not in visited:
+                stack.push(current)
+                visited.append(successor[0])
+                stack.push(successor)
+                break
+    rehash = []
+    while stack.isEmpty() == False:
+        rehash.append(stack.pop()[1])
+
+    output = rehash[0:len(rehash)-1]
+    output.reverse()
+    return output
+
+    # util.raiseNotDefined()
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    path = []
+    parent = {}
+    end = []
+    visited = []
+    queue.push((problem.getStartState(), '', 0))
+    path.append(problem.getStartState())
+
+    while not queue.isEmpty():
+        current = queue.pop()
+        if problem.isGoalState(current[0]):
+            end = current
+            break
+        
+        for successor in problem.getSuccessors(current[0]):
+            if successor[0] not in visited:
+                visited.append(successor[0])
+                queue.push(successor)
+                parent[successor] = current
+    
+    rehash = []
+    # rehash.append(end[1])
+    rev_current = end
+    while parent[rev_current] != (problem.getStartState(), '', 0):
+        rehash.append(parent[rev_current][1])
+        rev_current = parent[rev_current]
+    
+    rehash.reverse()
+    return rehash
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -105,6 +154,7 @@ def nullHeuristic(state, problem=None):
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
