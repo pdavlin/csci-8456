@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import copy
 
 
 class SearchProblem:
@@ -75,36 +76,30 @@ def tinyMazeSearch(problem):
 
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-    """
-    visited = []
     stack = util.Stack()
-    stack.push((problem.getStartState(), '', 0))
-    found_goal = False
+    stack.push([[problem.getStartState(), 0]])
+    output = []
     while stack.isEmpty() == False:
-        current = stack.pop()
-        if(problem.isGoalState(current[0])):
-            stack.push(current)
-            break
-        for successor in problem.getSuccessors(current[0]):
-            if successor[0] not in visited:
-                stack.push(current)
-                visited.append(successor[0])
-                stack.push(successor)
-                break
-    rehash = []
-    while stack.isEmpty() == False:
-        rehash.append(stack.pop()[1])
+        current_stack = stack.pop()
+        path = []
+        for stack_item in current_stack:
+            path.append(stack_item[0])
+        current = current_stack[-1]
 
-    output = rehash[0:len(rehash)-1]
-    output.reverse()
+        if(problem.isGoalState(current[0])):
+            print('found')
+            for state in current_stack:
+                output.append(state[1])
+            break
+
+        successors = problem.getSuccessors(current[0])
+        for successor in successors:
+            if successor[0] not in path:
+                placeholder = current_stack.copy()
+                placeholder.append(successor)
+                stack.push(placeholder)
+    # output.reverse()
+    output = output[1:len(output)]
     return output
 
     # util.raiseNotDefined()
@@ -113,39 +108,75 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     queue = util.Queue()
-    path = []
-    parent = {}
-    end = []
-    visited = []
-    queue.push((problem.getStartState(), '', 0))
-    path.append(problem.getStartState())
+    start_item = problem.getStartState()
+    queue.push([[problem.getStartState(), 0]])
+
+    visited = [start_item[0]]
+    output = []
 
     while not queue.isEmpty():
-        current = queue.pop()
+        current_queue = queue.pop()
+        current = current_queue[-1]
         if problem.isGoalState(current[0]):
-            end = current
+            for state in current_queue:
+                output.append(state[1])
             break
-        
+
         for successor in problem.getSuccessors(current[0]):
             if successor[0] not in visited:
+                placeholder = current_queue.copy()
+                placeholder.append(successor)
+                queue.push(placeholder)
                 visited.append(successor[0])
-                queue.push(successor)
-                parent[successor] = current
-    
-    rehash = []
-    # rehash.append(end[1])
-    rev_current = end
-    while parent[rev_current] != (problem.getStartState(), '', 0):
-        rehash.append(parent[rev_current][1])
-        rev_current = parent[rev_current]
-    
-    rehash.reverse()
-    return rehash
+
+    output = output[1:len(output)]
+    return output
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    queue = util.PriorityQueue()
+    start = problem.getStartState()
+    prev = [start[0]]
+    queue.push([[problem.getStartState(), "", 0]], 0)
+    fin = []
+
+    while not queue.isEmpty():
+        current_queue = queue.pop()
+        current = current_queue[-1]
+        path = [c[0] for c in current_queue]
+        # print("Current: ", current[0])
+        # print("prev: ", prev)
+        # print("Current: ", current)
+        # for stack_item in current_stack:
+        #     path.append(stack_item[0])
+        # current = current_stack[-1]
+        
+        if problem.isGoalState(current[0]):
+            fin = [x[1] for x in current_queue]
+            break
+
+        s = problem.getSuccessors(current[0])
+        if len(s) > 0:
+            for node in s:
+                if node[0] not in prev:
+                    # print("node: ", node)
+                    ph = current_queue.copy()
+                    next_cost = node[2] + current[2]
+                    # print("next cost: ", next_cost)
+                    ph.append([node[0], node[1], next_cost])
+                    queue.push(ph, next_cost)
+                    prev.append(node[0])
+                elif node[0] in path:
+                    print("node found in path: ", node[0])
+                else: 
+                    print("worthless node?: ", node)
+
+    return fin[1:]
 
 
 def nullHeuristic(state, problem=None):
@@ -157,9 +188,35 @@ def nullHeuristic(state, problem=None):
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.PriorityQueue()
+    start_item = problem.getStartState()
+    queue.push([[start_item, "", 0]],0)
+
+    visited = {start_item: 0}
+    output = []
+
+    while not queue.isEmpty():
+        current_queue = queue.pop()
+        current = current_queue[-1]
+
+        if current[0] not in visited or current[2] <= visited[current[0]]:
+            if problem.isGoalState(current[0]):
+                for state in current_queue:
+                    output.append(state[1])
+                break
+
+            for successor in problem.getSuccessors(current[0]):
+                if successor[0] not in visited or (current[2] + successor[2]+ heuristic(successor[0], problem)) < visited[successor[0]]:
+                    updated_cost = current[2] + successor[2] + heuristic(successor[0], problem)
+                    print(updated_cost)
+                    visited[successor[0]] = updated_cost
+                    updated_successor = (successor[0], successor[1], updated_cost)
+                    placeholder = current_queue.copy()
+                    placeholder.append(updated_successor)
+                    queue.push(placeholder, updated_cost)
+
+    output = output[1:len(output)]
+    return output
 
 
 # Abbreviations
