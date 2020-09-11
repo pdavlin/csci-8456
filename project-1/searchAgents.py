@@ -354,14 +354,12 @@ class CornersProblem(search.SearchProblem):
             if not hitsWall:
                 next_position = (nextx, nexty)
                 found_corners = list(state[1])
-                # print("found corners in this request",remaining_corners)
 
                 if next_position in self.corners and next_position not in state[1]:
                     found_corners.append(next_position)
                 corners_tuple = tuple(found_corners)
                 successors.append(((next_position, corners_tuple), action, 1))
-                # print("tuple:", tuple(found_corners))
-                # print("next:",successors)
+
         self._expanded += 1  # DO NOT CHANGE
         return successors
 
@@ -382,32 +380,17 @@ class CornersProblem(search.SearchProblem):
 
 
 def cornersHeuristic(state, problem):
-    """
-    A heuristic for the CornersProblem that you defined.
-
-      state:   The current search state
-               (a data structure you chose in your search problem)
-
-      problem: The CornersProblem instance for this layout.
-
-    This function should always return a number that is a lower bound on the
-    shortest path from the state to a goal of the problem; i.e.  it should be
-    admissible (as well as consistent).
-    """
     corners = problem.corners  # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
     walls = problem.walls
 
     output = 0
     found_corners = state[1]
-    if len(found_corners) == 4:
-        print(found_corners)
-    print("found corners:", found_corners)
     unfound_corners = list(set(corners) - set(found_corners))
     evaluated_location = state[0]
     while len(unfound_corners) > 0:
         nearest_unfound_corner = unfound_corners[0]
-        nearest_dist = 5
+        nearest_dist = 100
         for corner in unfound_corners:
             distance = util.manhattanDistance(evaluated_location, corner)
             if distance < nearest_dist:
@@ -417,7 +400,7 @@ def cornersHeuristic(state, problem):
         unfound_corners.remove(nearest_unfound_corner)
         evaluated_location = nearest_unfound_corner   
 
-    return output  # Default to trivial solution
+    return output
 
 
 class AStarCornersAgent(SearchAgent):
@@ -521,7 +504,8 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    print(len(foodGrid.asList()))
+    return len(foodGrid.asList())
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -556,7 +540,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.ucs(problem)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -590,10 +574,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x, y = state
+        return state in self.food.asList()
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
 
 
 def mazeDistance(point1, point2, gameState):

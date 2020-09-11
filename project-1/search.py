@@ -87,7 +87,6 @@ def depthFirstSearch(problem):
         current = current_stack[-1]
 
         if(problem.isGoalState(current[0])):
-            print('found')
             for state in current_stack:
                 output.append(state[1])
             break
@@ -140,43 +139,30 @@ def uniformCostSearch(problem):
     # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     queue = util.PriorityQueue()
-    start = problem.getStartState()
-    prev = [start[0]]
-    queue.push([[problem.getStartState(), "", 0]], 0)
+    queue.push([problem.getStartState(), [], 0], 0)
+    visited = set()
     fin = []
 
     while not queue.isEmpty():
-        current_queue = queue.pop()
-        current = current_queue[-1]
-        path = [c[0] for c in current_queue]
-        # print("Current: ", current[0])
-        # print("prev: ", prev)
-        # print("Current: ", current)
-        # for stack_item in current_stack:
-        #     path.append(stack_item[0])
-        # current = current_stack[-1]
-        
-        if problem.isGoalState(current[0]):
-            fin = [x[1] for x in current_queue]
-            break
+        current = queue.pop()
+        xy = current[0]
+        path = current[1]
+        cost = current[2]
 
-        s = problem.getSuccessors(current[0])
-        if len(s) > 0:
-            for node in s:
-                if node[0] not in prev:
-                    # print("node: ", node)
-                    ph = current_queue.copy()
-                    next_cost = node[2] + current[2]
-                    # print("next cost: ", next_cost)
-                    ph.append([node[0], node[1], next_cost])
-                    queue.push(ph, next_cost)
-                    prev.append(node[0])
-                elif node[0] in path:
-                    print("node found in path: ", node[0])
-                else: 
-                    print("worthless node?: ", node)
+        if xy not in visited:
+            visited.add(xy)
 
-    return fin[1:]
+            if problem.isGoalState(xy):
+                return path
+            
+            for node in problem.getSuccessors(xy):
+                nxy = node[0]
+                npath = node[1]
+                npriority = node[2]
+                if nxy not in visited:
+                    queue.push([node[0], path + [npath], npriority + cost], npriority + cost)
+
+    return fin
 
 
 def nullHeuristic(state, problem=None):
@@ -188,35 +174,43 @@ def nullHeuristic(state, problem=None):
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    queue = util.PriorityQueue()
-    start_item = problem.getStartState()
-    queue.push([[start_item, "", 0]],0)
+    """Search the node of least total cost first."""
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
-    visited = {start_item: 0}
-    output = []
+    queue = util.PriorityQueue()
+    start_state = problem.getStartState()
+    start_heuristic = heuristic(start_state, problem)
+    queue.push([start_state, [], 0, start_heuristic], 0)
+    visited = set()
+    fin = []
 
     while not queue.isEmpty():
-        current_queue = queue.pop()
-        current = current_queue[-1]
+        current = queue.pop()
+        xy = current[0]
+        path = current[1]
+        cost = current[2]
+        xyh = current[3]
+        newh = heuristic(xy, problem)
 
-        if current[0] not in visited or current[2] <= visited[current[0]]:
-            if problem.isGoalState(current[0]):
-                for state in current_queue:
-                    output.append(state[1])
-                break
+        if xy not in visited or xyh < heuristic(xy, problem):
+            visited.add(xy)
 
-            for successor in problem.getSuccessors(current[0]):
-                if successor[0] not in visited or (current[2] + successor[2]+ heuristic(successor[0], problem)) < visited[successor[0]]:
-                    updated_cost = current[2] + successor[2] + heuristic(successor[0], problem)
-                    print(updated_cost)
-                    visited[successor[0]] = updated_cost
-                    updated_successor = (successor[0], successor[1], updated_cost)
-                    placeholder = current_queue.copy()
-                    placeholder.append(updated_successor)
-                    queue.push(placeholder, updated_cost)
+            if problem.isGoalState(xy):
+                return path
+            
+            for node in problem.getSuccessors(xy):
+                nxy = node[0]
+                npath = node[1]
+                npriority = node[2]
+                heuristic_value = heuristic(node[0], problem)
 
-    output = output[1:len(output)]
-    return output
+                sum_cost = npriority + cost + heuristic_value
+                if nxy not in visited:
+                    queue.push([node[0], path + [npath], npriority + cost, heuristic_value], sum_cost)
+
+    return fin
 
 
 # Abbreviations
