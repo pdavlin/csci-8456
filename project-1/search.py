@@ -77,59 +77,54 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     stack = util.Stack()
-    stack.push([[problem.getStartState(), 0]])
-    output = []
-    while stack.isEmpty() == False:
-        current_stack = stack.pop()
-        path = []
-        for stack_item in current_stack:
-            path.append(stack_item[0])
-        current = current_stack[-1]
+    stack.push([problem.getStartState(), []])
+    visited = set()
+    fin = []
 
-        if(problem.isGoalState(current[0])):
-            for state in current_stack:
-                output.append(state[1])
-            break
+    while not stack.isEmpty():
+        current = stack.pop()
+        xy = current[0]
+        path = current[1]
 
-        successors = problem.getSuccessors(current[0])
-        for successor in successors:
-            if successor[0] not in path:
-                placeholder = current_stack.copy()
-                placeholder.append(successor)
-                stack.push(placeholder)
-    # output.reverse()
-    output = output[1:len(output)]
-    return output
+        if xy not in visited:
+            visited.add(xy)
 
-    # util.raiseNotDefined()
+            if problem.isGoalState(xy):
+                return path
+            
+            for node in problem.getSuccessors(xy):
+                nxy = node[0]
+                npath = node[1]
+                if nxy not in visited:
+                    stack.push([node[0], path + [npath]])
+
+    return fin
 
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
     queue = util.Queue()
-    start_item = problem.getStartState()
-    queue.push([[problem.getStartState(), 0]])
-
-    visited = [start_item[0]]
-    output = []
+    queue.push([problem.getStartState(), []])
+    visited = set()
+    fin = []
 
     while not queue.isEmpty():
-        current_queue = queue.pop()
-        current = current_queue[-1]
-        if problem.isGoalState(current[0]):
-            for state in current_queue:
-                output.append(state[1])
-            break
+        current = queue.pop()
+        xy = current[0]
+        path = current[1]
 
-        for successor in problem.getSuccessors(current[0]):
-            if successor[0] not in visited:
-                placeholder = current_queue.copy()
-                placeholder.append(successor)
-                queue.push(placeholder)
-                visited.append(successor[0])
+        if xy not in visited:
+            visited.add(xy)
 
-    output = output[1:len(output)]
-    return output
+            if problem.isGoalState(xy):
+                return path
+            
+            for node in problem.getSuccessors(xy):
+                nxy = node[0]
+                npath = node[1]
+                if nxy not in visited:
+                    queue.push([node[0], path + [npath]])
+
+    return fin
 
 
 def uniformCostSearch(problem):

@@ -504,7 +504,6 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    print(len(foodGrid.asList()))
     return len(foodGrid.asList())
 
 
