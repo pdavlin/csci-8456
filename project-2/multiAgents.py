@@ -346,7 +346,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             #maintain score:
             running_score += (score * p)
 
-        # avg = running_score / (state.getNumAgents() - 1)
         return running_score
 
 def betterEvaluationFunction(currentGameState):
@@ -354,10 +353,38 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: Using practically the same function as the previous Eval, but I've tuned the ghost
+    and food incentives. Frequently, pacman would stand still and wait until provoked by the ghost
+    (the fastest changing part of the score value). To help normalize this, I multiplied the distance 
+    to the closest ghost by .3. The current game score is also added to try and incentivise movement
+    and early finishing instead of patience and safety
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacman_loc = currentGameState.getPacmanPosition()
+    ghost_states = currentGameState.getGhostStates()
+    ghost_locs = currentGameState.getGhostPositions()
+    # scared_ghosts = currentGameState.get
+    food_locs = currentGameState.getFood()
+    food_list = food_locs.asList()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghost_states]
+    fds = [manhattanDistance(pacman_loc, f) for f in food_list]
+    gds = [manhattanDistance(pacman_loc, g) for g in ghost_locs]
+    # print("ghost dists: ", gds)
+    # print("food distances: ", fds)
+    
+    if fds == 0:
+        return 1000
+    else:
+        closest_ghost = min(gds)
+        closest_food = min(fds, default=1)
+        # if len(fds) == 0:
+        #     denom = 1
+        # else:
+        #     denom = len(fds)
+        # avg_food = sum(fds) / denom
+        score = currentGameState.getScore() + (0.3 * closest_ghost) / (closest_food * 10)
+        # print("score: ", score)
+        return score
 
 # Abbreviation
 better = betterEvaluationFunction
