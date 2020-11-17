@@ -4,7 +4,7 @@
 trash
 screenlog*
 config/
-instances/
+# instances/
 misc/
 legacy/
 MBOX
