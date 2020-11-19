@@ -11,20 +11,53 @@ ENCODINGS="."
 # VISUALIZER="--outf=0 -V0 --out-atomf=%s. | head -n1 | visualizer"
 VISUALIZER="head -n1 | visualizer"
 
-# Part 1 Command
+# Exercise 1-1 Command
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=15 \
+# ./m/{action-M-mod.lp,goal-M-mod.lp,output-M.lp} \
+# instances/x11_y6_n66_r1_s8_ps1_pr8_u8_o8_N001.lp | viz
+
+# Exercise 1-2 Command
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=10 \
+# $ENCODINGS/m/{action-M-mod.lp,goal-M-mod.lp,output-M.lp} \
+# instances/x11_y6_n66_r1_s8_ps1_pr8_u8_o8_N001.lp | viz
+
+# Exercise 2-1 Command
 clingo --out-atomf='%s.' -V0 \
--c horizon=15 \
-$ENCODINGS/m/{action-M.lp,goal-M-mod.lp,output-M.lp} \
-instances/x11_y6_n66_r1_s8_ps1_pr8_u8_o8_N001.lp
+-c horizon=20 \
+$ENCODINGS/m/{action-M-mod.lp,goal-M.lp,output-M.lp} \
+instances/x11_y6_n66_r8_s8_ps1_pr8_u8_o8_N001.lp | viz
 
-# clingo abc/{action-MPP.lp,goal-D-c.lp} examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8
-# output-MPPD.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
+# Exercise 2-2
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=25 \
+# $ENCODINGS/control/{sides.lp,highways.lp} \
+# $ENCODINGS/abc/{action-MPP.lp,goal-D-a.lp,output-MPPD.lp} \
+# instances/x9_y6_n54_r4_s8_ps2_pr8_u8_o8_N001.lp | viz
 
-# clingo --out-atomf='%s.' -V0 -c horizon=20 $ENCODINGS/m/action-M.lp $ENCODINGS/m/goal-M.lp $ENCODINGS/m/output-M.lp instances/x11_y6_n66_r8_s8_ps1_pr8_u8_o8_N001.lp | head -n1 | viz
+# Exercise 3-1
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=25 \
+# $ENCODINGS/control/{sides.lp,highways.lp} \
+# $ENCODINGS/abc/{action-MPP.lp,goal-D-a.lp,output-MPPD.lp} \
+# instances/x9_y6_n54_r4_s8_ps2_pr8_u8_o8_N001.lp | viz
 
-# for f in $1/*.lp ;
-# do
-#     $SYSTEM $ENCODINGS $f;
-# done
+# Exercise 3-2
+# clingo --out-atomf='%s.' -V0 \
+# $ENCODINGS/control/assign-a-sides.lp \
+# instances/x9_y6_n54_r4_s8_ps2_pr8_u8_o8_N001.lp | \
+# head -n 1 | \
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=40 \
+# - \
+# $ENCODINGS/control/{control-abc.lp,highways.lp} \
+# $ENCODINGS/abc/{action-MPP.lp,goal-D-a.lp,output-MPPD.lp} \
+# instances/x9_y6_n54_r4_s8_ps2_pr8_u8_o8_N001.lp | viz
 
-# # CALL="clingo1facts assign.lp $1 | clingo $ENCODINGS control.lp - $3 $VISUALIZER"
+# Exercise 4
+# clingo --out-atomf='%s.' -V0 \
+# -c horizon=30 \
+# $ENCODINGS/control/{energy.lp,highways.lp} \
+# $ENCODINGS/abc/{action-MPP.lp,goal-D-a.lp,output-MPPD.lp} \
+# instances/x7_y6_n42_r3_s6_ps1_pr12_u24_o3_nrg_N001.lp
