@@ -29,8 +29,6 @@ right_group(R) :- position(R,(X,_),0), side(X, right).
 left_group(R) :- position(R,(X,_),0), side(X, left).
 
 % Restrict movement of left/right robots to the respective half of the grid
-%right_assign(R,S,P) :- right_group(R), right_pick(P), right_shelves(S).
-%left_assign(R,S,P) :- left_group(R), left_pick(P), left_shelves(S).
 
 
 :- assign(R,S,_), right_group(R), left_shelves(S).
